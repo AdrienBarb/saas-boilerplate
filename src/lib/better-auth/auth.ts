@@ -15,26 +15,25 @@ export const auth = betterAuth({
   },
   plugins: [
     magicLink({
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      sendMagicLink: async ({ email, token, url }, request) => {
+      sendMagicLink: async ({ email, url }) => {
         try {
           const result = await resendClient.emails.send({
             from: config.contact.email,
             to: email,
-            subject: "Sign in to " + config.project.name,
+            subject: `Sign in to ${config.project.name}`,
             react: MagicLinkEmail({
               magicLink: url,
             }),
           });
 
           if (result.error) {
-            console.error("❌ Resend API error:", result.error);
+            console.error("Resend API error:", result.error);
             throw new Error(
               `Failed to send email: ${result.error.message || JSON.stringify(result.error)}`
             );
           }
         } catch (error) {
-          console.error("❌ Error sending magic link email:", error);
+          console.error("Error sending magic link email:", error);
           if (error instanceof Error) {
             throw new Error(`Email send failed: ${error.message}`);
           }

@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { z } from "zod";
 import { render } from "@react-email/render";
 import { WaitlistConfirmationEmail } from "@/lib/emails/WaitlistConfirmationEmail";
 import { resendClient } from "@/lib/resend/resendClient";
+import { errorHandler } from "@/lib/errors/errorHandler";
+import { waitlistSchema } from "@/lib/schemas/common";
+import { checkRateLimit } from "@/lib/ratelimit/checkRateLimit";
+import { emailLimiter } from "@/lib/ratelimit/client";
 import config from "@/lib/config";
-
-const waitlistSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  name: z.string().optional(),
-});
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit check
+    const rateLimit = await checkRateLimit(request, emailLimiter);
+    if (!rateLimit.success) return rateLimit.response;
+
     const body = await request.json();
     const { email, name } = waitlistSchema.parse(body);
 
@@ -69,17 +71,6 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: error.issues[0].message },
-        { status: 400 }
-      );
-    }
-
-    console.error("Waitlist error:", error);
-    return NextResponse.json(
-      { error: "Failed to join waitlist" },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }

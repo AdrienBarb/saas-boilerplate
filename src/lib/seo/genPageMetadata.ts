@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { siteMetadata } from "@/data/siteMetadata";
+import config from "@/lib/config";
 
 interface PageSEOProps {
   title: string;
   description?: string;
   image?: string;
   url?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function genPageMetadata({
@@ -28,51 +29,42 @@ export function genPageMetadata({
     metadataBase: new URL(siteMetadata.siteUrl),
     title: {
       default: title || siteMetadata.title,
-      template: `%s | ${siteMetadata.title}`,
+      template: `%s | ${config.project.brandName}`,
     },
     description: description || siteMetadata.description,
-    keywords: [
-      "startup ideas",
-      "solo founder",
-      "build in 7 days",
-      "newsletter",
-      "entrepreneurship",
-      "startup newsletter",
-      "solo entrepreneur",
-      "weekly newsletter",
-    ],
-    authors: [{ name: siteMetadata.title }],
-    creator: siteMetadata.title,
-    publisher: siteMetadata.title,
+    keywords: config.seo.keywords,
+    authors: [{ name: config.seo.author }],
+    creator: config.project.brandName,
+    publisher: config.project.brandName,
     formatDetection: {
       email: false,
       address: false,
       telephone: false,
     },
     openGraph: {
-      title: `${title} | ${siteMetadata.title}`,
+      title: `${title} | ${config.project.brandName}`,
       description: description || siteMetadata.description,
       url: absoluteUrl,
-      siteName: siteMetadata.title,
+      siteName: config.project.brandName,
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: `${title} | ${siteMetadata.title}`,
+          alt: `${title} | ${config.project.brandName}`,
         },
       ],
       locale: "en_US",
       type: "website",
     },
     twitter: {
-      title: `${title} | ${siteMetadata.title}`,
+      title: `${title} | ${config.project.brandName}`,
       description: description || siteMetadata.description,
       card: "summary_large_image",
       images: [
         {
           url: imageUrl,
-          alt: `${title} | ${siteMetadata.title}`,
+          alt: `${title} | ${config.project.brandName}`,
         },
       ],
       creator: siteMetadata.twitter,
